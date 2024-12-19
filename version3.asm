@@ -37,7 +37,7 @@ section .data
     start_banner db "############# Start Operation ############", 0xA
     len_start_ban equ $ - start_banner
 
-    end_banner db "############# End Operation ############", 0xA
+    end_banner db 0xA, "############# End Operation ############", 0xA
     len_end_ban equ $ - end_banner
 
     num_prompt db "num = "
@@ -72,15 +72,15 @@ section .data
 
 section .bss
     option resb 2
-    num resb 2
-    num1 resb 2
-    num2 resb 2
-    res resb 2
+    num resb 6
+    num1 resb 6
+    num2 resb 6
+    res resb 6
 
 section .text
     global _start 
 
-_start
+_start:
 
 l0:
     write_string menu, len_menu
@@ -112,14 +112,12 @@ l0:
     cmp al, '8'
     je _exit
 
-    loop l0
-
 addition:
     write_string start_banner, len_start_ban
     write_string num1_prompt, len_num1_prompt
-    read_string num1, 2
+    read_string num1, 6
     write_string num2_prompt, len_num2_prompt
-    read_string num2, 2
+    read_string num2, 6
 
     mov esi, 4      ;pointer
     mov ecx, 5      ;size
@@ -141,11 +139,40 @@ add_loop:
     loop add_loop
 
     write_string add_res, len_add_res
-    write_string res, 2
-    ret
+    write_string res, 5
+    write_string end_banner, len_end_ban
+    jmp l0
 
 substraction:
+    write_string start_banner, len_start_ban
+    write_string num1_prompt, len_num1_prompt
+    read_string num1, 6
+    write_string num2_prompt, len_num2_prompt
+    read_string num2, 6
 
+    mov esi, 4      ;pointer
+    mov ecx, 5      ;size
+    clc
+
+sub_loop:
+    mov al, [num1 + esi]
+    sbb al, [num2 + esi]
+    aas
+
+    pushf
+
+    or al, 30h
+
+    popf
+
+    mov [res + esi], al
+    dec esi
+    loop sub_loop
+
+    write_string sub_res, len_sub_res
+    write_string res, 5
+    write_string end_banner, len_end_ban
+    jmp l0
 
 multiplication:
 
@@ -157,7 +184,7 @@ increment:
     
 
 decrement:
-    
+
 
 modulo:
 
